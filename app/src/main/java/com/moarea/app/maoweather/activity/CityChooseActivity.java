@@ -2,6 +2,7 @@ package com.moarea.app.maoweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -42,7 +43,9 @@ public class CityChooseActivity extends BaseActivity {
     private List<City> mCities;
 
     private static final int NONE_DATE = 0;
-    private static final int HAS_DATE = 1;
+
+    private SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +54,10 @@ public class CityChooseActivity extends BaseActivity {
         setContentView(R.layout.activity_citychoose);
 
         mMaoWeatherDB = MaoWeatherDB.getInstance(this);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mEditor = mSharedPreferences.edit();
 
-        if(mMaoWeatherDB.checkDataState() == NONE_DATE){
+        if (mMaoWeatherDB.checkDataState() == NONE_DATE) {
             queryCitiesFromServer();
         }
 
@@ -60,19 +65,17 @@ public class CityChooseActivity extends BaseActivity {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                mCities =  queryCitiesFromLocal(s.toString());
+                mCities = queryCitiesFromLocal(s.toString());
                 mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
 
@@ -84,9 +87,9 @@ public class CityChooseActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mCity_selected = mCities.get(position);
+                queryWeatherFromServer();
             }
         });
-
     }
 
     //从服务器取出所有的城市信息
@@ -110,7 +113,6 @@ public class CityChooseActivity extends BaseActivity {
 
             @Override
             public void onError(final Exception e) {
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -122,14 +124,13 @@ public class CityChooseActivity extends BaseActivity {
         });
     }
 
-
+    //从本地数据库取出相似的城市名称
     private List<City> queryCitiesFromLocal(String name) {
         List<City> cities = mMaoWeatherDB.loadCitiesByName(name);
         cityNames.clear();
         for (City city : cities) {
             cityNames.add(city.getCity_name_ch());
         }
-
         return cities;
     }
 
@@ -149,6 +150,51 @@ public class CityChooseActivity extends BaseActivity {
     private void closeProgressDialog() {
         if (mProgressDialog != null)
             mProgressDialog.dismiss();
+    }
+
+    private void queryWeatherFromServer() {
+
+        String address = "https://api.heweather.com/x3/weather?cityid=" + mCity_selected.getCity_code() + "&key=" + MaoWeatherActivity.WEATHER_KEY;
+        showProgressDialog();
+
+        HttpUtil.sendHttpRequest(address, new HttpCallback() {
+            @Override
+            public void onFinish(String response) {
+                if (Utility.handleWeatherResponse(mEditor, response)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            closeProgressDialog();
+
+                            Intent intent = new Intent();
+                            intent.putExtra("city_name_ch", mSharedPreferences.getString("city_name_ch", null));
+                            intent.putExtra("city_code", mSharedPreferences.getString("city_code", null));
+                            intent.putExtra("update_time", mSharedPreferences.getString("update_time", null));
+                            intent.putExtra("txt_d", mSharedPreferences.getString("txt_d", null));
+                            intent.putExtra("txt_n", mSharedPreferences.getString("txt_n", null));
+                            intent.putExtra("data_now", mSharedPreferences.getString("data_now", null));
+                            intent.putExtra("tmp_min", mSharedPreferences.getString("tmp_min", null));
+                            intent.putExtra("tmp_max", mSharedPreferences.getString("tmp_max", null));
+
+                            setResult(RESULT_OK, intent);
+
+                            finish();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        Toast.makeText(CityChooseActivity.this, "数据加载失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
 }
