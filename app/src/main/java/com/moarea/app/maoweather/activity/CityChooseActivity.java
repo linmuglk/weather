@@ -57,6 +57,9 @@ public class CityChooseActivity extends BaseActivity {
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mEditor = mSharedPreferences.edit();
 
+        mCities= queryCitiesFromLocal("");
+
+
         if (mMaoWeatherDB.checkDataState() == NONE_DATE) {
             queryCitiesFromServer();
         }

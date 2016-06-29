@@ -64,9 +64,7 @@ public class AutoUpdateService extends Service {
 
     private void updateWeather() {
 
-
         String city_code = sharedPreferences.getString("city_code", null);
-
         String address = "https://api.heweather.com/x3/weather?cityid=" + city_code + "&key=" + MaoWeatherActivity.WEATHER_KEY;
 
         HttpUtil.sendHttpRequest(address, new HttpCallback() {

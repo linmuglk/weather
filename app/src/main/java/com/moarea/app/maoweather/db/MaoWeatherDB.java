@@ -68,7 +68,7 @@ public class MaoWeatherDB {
     public List<City> loadCitiesByName(String name) {
 
         List<City> cities = new ArrayList<>();
-        Cursor cursor = mSQLiteDatabase.query("CITY", null, "CITY_NAME_CH like ?", new String[]{name + "%"}, null, null, null);
+        Cursor cursor = mSQLiteDatabase.query("CITY", null, "CITY_NAME_CH like ?", new String[]{name + "%"}, null, null,"CITY_CODE");
         while (cursor.moveToNext()) {
             City city = new City();
             city.setId(cursor.getInt(cursor.getColumnIndex("ID")));
@@ -82,29 +82,29 @@ public class MaoWeatherDB {
         return cities;
     }
 
-    public int checkDataState(){
+    public int checkDataState() {
 
         int data_state = -1;
-        Cursor cursor = mSQLiteDatabase.query("data_state",null,null,null,null,null,null);
+        Cursor cursor = mSQLiteDatabase.query("data_state", null, null, null, null, null, null);
 
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 data_state = cursor.getInt(cursor.getColumnIndex("STATE"));
-            }while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
 
-        if(cursor!=null)
+        if (cursor != null)
             cursor.close();
 
         return data_state;
     }
 
-    public void updateDataState(){
+    public void updateDataState() {
 
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put("state",1);
-        mSQLiteDatabase.update("data_state",contentValues,null,null);
+        contentValues.put("state", 1);
+        mSQLiteDatabase.update("data_state", contentValues, null, null);
 
     }
 }

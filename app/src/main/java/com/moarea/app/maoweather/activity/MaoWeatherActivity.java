@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,10 @@ import com.moarea.app.maoweather.service.AutoUpdateService;
 import com.moarea.app.maoweather.util.HttpCallback;
 import com.moarea.app.maoweather.util.HttpUtil;
 import com.moarea.app.maoweather.util.Utility;
+
+import net.youmi.android.AdManager;
+import net.youmi.android.banner.AdSize;
+import net.youmi.android.banner.AdView;
 
 /**
  * Created by Johnny on 2016/6/28.
@@ -46,6 +51,9 @@ public class MaoWeatherActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AdManager.getInstance(this).init("8c8f79aef6457ac0", "d71c14f920b0e968", false);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_maoweather);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -83,9 +91,13 @@ public class MaoWeatherActivity extends BaseActivity {
             updateWeatherFromServer();
         }
 
-
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
+
+        AdView adView = new AdView(this, AdSize.FIT_SCREEN);
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.adLayout);
+
+        linearLayout.addView(adView);
 
     }
 

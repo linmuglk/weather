@@ -7,7 +7,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/colorPrimary">
+        android:background="#484E61">
 
         <Button
             android:id="@+id/button_changeCity"
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/colorPrimaryDark"
+        android:background="#27A5F9"
         >
 
         <TextView
@@ -124,6 +124,15 @@
                     android:textSize="60sp"
                     />
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/adLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            >
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>
