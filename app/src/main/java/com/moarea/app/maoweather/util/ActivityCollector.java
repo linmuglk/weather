@@ -13,25 +13,18 @@ import dalvik.annotation.TestTarget;
 public class ActivityCollector {
 
     private static List<Activity> sActivities = new ArrayList<>();
-
-
     public static void addActivity(Activity activity) {
-
         sActivities.add(activity);
-
     }
-
     public static void removeActivity(Activity activity) {
         sActivities.remove(activity);
     }
 
     public static void finishAll() {
-
         for (Activity activity : sActivities) {
             if (!activity.isFinishing()) {
                 activity.finish();
             }
         }
     }
-
 }

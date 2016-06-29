@@ -19,7 +19,7 @@ public class Utility {
 
         if (!TextUtils.isEmpty(response)) {
             try {
-                JSONArray jsonArray = new JSONArray(response);
+                JSONArray jsonArray = new JSONObject(response).getJSONArray("city_info");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject city_info = jsonArray.getJSONObject(i);
                     City city = new City();

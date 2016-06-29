@@ -10,6 +10,7 @@
         android:background="@color/colorPrimary">
 
         <Button
+            android:id="@+id/button_changeCity"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_centerVertical="true"
@@ -29,6 +30,7 @@
             />
 
         <Button
+            android:id="@+id/button_refresh"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_alignParentRight="true"
