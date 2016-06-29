@@ -134,24 +134,6 @@ public class CityChooseActivity extends BaseActivity {
         return cities;
     }
 
-    //显示对话框
-    private void showProgressDialog() {
-
-        if (mProgressDialog == null) {
-
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage("正在加载数据...");
-            mProgressDialog.setCanceledOnTouchOutside(false);
-        }
-        mProgressDialog.show();
-    }
-
-    //关闭对话框
-    private void closeProgressDialog() {
-        if (mProgressDialog != null)
-            mProgressDialog.dismiss();
-    }
-
     private void queryWeatherFromServer() {
 
         String address = "https://api.heweather.com/x3/weather?cityid=" + mCity_selected.getCity_code() + "&key=" + MaoWeatherActivity.WEATHER_KEY;
@@ -177,7 +159,6 @@ public class CityChooseActivity extends BaseActivity {
                             intent.putExtra("tmp_max", mSharedPreferences.getString("tmp_max", null));
 
                             setResult(RESULT_OK, intent);
-
                             finish();
                         }
                     });
@@ -190,11 +171,31 @@ public class CityChooseActivity extends BaseActivity {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(CityChooseActivity.this, "数据加载失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CityChooseActivity.this, "数据同步失败", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
+    }
+
+    private void showProgressDialog() {
+
+        if (mProgressDialog == null) {
+            if (mProgressDialog == null) {
+
+                mProgressDialog = new ProgressDialog(this);
+                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                mProgressDialog.setMessage("正在同步数据...");
+                mProgressDialog.setCanceledOnTouchOutside(false);
+            }
+            mProgressDialog.show();
+        }
+    }
+
+    private void closeProgressDialog() {
+
+        if (mProgressDialog != null)
+            mProgressDialog.dismiss();
     }
 
 }

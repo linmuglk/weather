@@ -1,5 +1,7 @@
 package com.moarea.app.maoweather.util;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -86,6 +88,4 @@ public class Utility {
         }
         return false;
     }
-
-
 }
