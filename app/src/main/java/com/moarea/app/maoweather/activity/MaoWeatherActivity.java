@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.moarea.app.maoweather.R;
 import com.moarea.app.maoweather.db.MaoWeatherDB;
 import com.moarea.app.maoweather.model.City;
+import com.moarea.app.maoweather.service.AutoUpdateService;
 import com.moarea.app.maoweather.util.HttpCallback;
 import com.moarea.app.maoweather.util.HttpUtil;
 import com.moarea.app.maoweather.util.Utility;
@@ -26,13 +27,10 @@ public class MaoWeatherActivity extends BaseActivity {
     public static final String WEATHER_KEY = "29b54988329f4c179259bc31150dd9e3";
 
     private Button mChangeCityButton;
-    private MaoWeatherDB mMaoWeatherDB;
     private ProgressDialog mProgressDialog;
 
     private SharedPreferences mSharedPreferences;
-
     private SharedPreferences.Editor mEditor;
-
     public static final int REQUEST_CODE = 1;
 
     private TextView mTextView_cityName;
@@ -50,7 +48,6 @@ public class MaoWeatherActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_maoweather);
-        mMaoWeatherDB = MaoWeatherDB.getInstance(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mEditor = mSharedPreferences.edit();
         mChangeCityButton = (Button) findViewById(R.id.button_changeCity);
@@ -76,7 +73,20 @@ public class MaoWeatherActivity extends BaseActivity {
                 updateWeatherFromServer();
             }
         });
-        loadWeatherData(mSharedPreferences.getString("city_code", null), mSharedPreferences.getString("city_name_ch", null), mSharedPreferences.getString("update_time", null), mSharedPreferences.getString("data_now", null), mSharedPreferences.getString("txt_d", null), mSharedPreferences.getString("txt_n", null), mSharedPreferences.getString("tmp_min", null), mSharedPreferences.getString("tmp_max", null));
+
+        if (mSharedPreferences.getString("city_code", null) == null) {
+            mCity_current.setCity_code("CN101010100");
+            updateWeatherFromServer();
+
+        } else {
+            loadWeatherData(mSharedPreferences.getString("city_code", null), mSharedPreferences.getString("city_name_ch", null), mSharedPreferences.getString("update_time", null), mSharedPreferences.getString("data_now", null), mSharedPreferences.getString("txt_d", null), mSharedPreferences.getString("txt_n", null), mSharedPreferences.getString("tmp_min", null), mSharedPreferences.getString("tmp_max", null));
+            updateWeatherFromServer();
+        }
+
+
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
+
     }
 
     @Override
@@ -154,7 +164,6 @@ public class MaoWeatherActivity extends BaseActivity {
     }
 
     private void closeProgressDialog() {
-
         if (mProgressDialog != null)
             mProgressDialog.dismiss();
     }
