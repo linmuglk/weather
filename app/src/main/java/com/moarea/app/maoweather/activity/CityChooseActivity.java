@@ -31,21 +31,21 @@ import java.util.List;
 /**
  * Created by Johnny on 2016/6/28.
  */
-public class CityChooseActivity extends BaseActivity {
+public class CityChooseActivity extends Activity {
 
-    private MaoWeatherDB mMaoWeatherDB;
-    private ProgressDialog mProgressDialog;
-    private EditText editText;
-    private ArrayAdapter<String> mAdapter;
-    private ListView mListView;
-    private List<String> cityNames = new ArrayList<>();
-    private City mCity_selected;
-    private List<City> mCities;
+    private MaoWeatherDB mMaoWeatherDB;//数据库操作对象
+    private ProgressDialog mProgressDialog;//进度条对话框
+    private EditText editText;//搜索编辑框
+    private ArrayAdapter<String> mAdapter;//ListView适配器
+    private ListView mListView;//城市ListView
+    private List<String> cityNames = new ArrayList<>();//用于存放与输入的内容相匹配的城市名称字符串
+    private City mCity_selected;//选中的城市
+    private List<City> mCities;//用于存放与输入的内容相匹配的城市名称对象
 
-    private static final int NONE_DATE = 0;
+    private static final int NONE_DATA = 0;//标识是否有初始化城市数据
 
-    private SharedPreferences mSharedPreferences;
-    private SharedPreferences.Editor mEditor;
+    private SharedPreferences mSharedPreferences;//本地存储
+    private SharedPreferences.Editor mEditor;//本地存储
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,17 +53,18 @@ public class CityChooseActivity extends BaseActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_citychoose);
 
-        mMaoWeatherDB = MaoWeatherDB.getInstance(this);
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mEditor = mSharedPreferences.edit();
+        mMaoWeatherDB = MaoWeatherDB.getInstance(this);//获取数据库处理对象
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);//获取本地存储对象
+        mEditor = mSharedPreferences.edit();//获取本地存储对象
 
-        mCities= queryCitiesFromLocal("");
-
-
-        if (mMaoWeatherDB.checkDataState() == NONE_DATE) {
+        //先检查本地是否已同步过城市数据，如果没有，则从服务器同步
+        if (mMaoWeatherDB.checkDataState() == NONE_DATA) {
             queryCitiesFromServer();
         }
 
+        mCities = queryCitiesFromLocal("");//获取本地存储的所有的城市
+
+        //搜索框，设置文本变化监听器
         editText = (EditText) findViewById(R.id.edit_city);
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -73,8 +74,8 @@ public class CityChooseActivity extends BaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                mCities = queryCitiesFromLocal(s.toString());
-                mAdapter.notifyDataSetChanged();
+                mCities = queryCitiesFromLocal(s.toString());//每次文本变化就去本地数据库查询匹配的城市
+                mAdapter.notifyDataSetChanged();//通知更新
             }
 
             @Override
@@ -82,15 +83,16 @@ public class CityChooseActivity extends BaseActivity {
             }
         });
 
-        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cityNames);
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cityNames);//适配器初始化
         mListView = (ListView) findViewById(R.id.list_view_cities);
         mListView.setAdapter(mAdapter);
 
+        //ListView的Item点击事件
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mCity_selected = mCities.get(position);
-                queryWeatherFromServer();
+                mCity_selected = mCities.get(position);//根据点击的位置获取对应的City对象
+                queryWeatherFromServer();//根据点击的城市从服务器获取天气数据
             }
         });
     }
@@ -137,6 +139,7 @@ public class CityChooseActivity extends BaseActivity {
         return cities;
     }
 
+    //从服务器获取天气数据
     private void queryWeatherFromServer() {
 
         String address = "https://api.heweather.com/x3/weather?cityid=" + mCity_selected.getCity_code() + "&key=" + MaoWeatherActivity.WEATHER_KEY;
@@ -145,23 +148,16 @@ public class CityChooseActivity extends BaseActivity {
         HttpUtil.sendHttpRequest(address, new HttpCallback() {
             @Override
             public void onFinish(String response) {
+                //将从服务器获取的JSON数据进行解析
                 if (Utility.handleWeatherResponse(mEditor, response)) {
+                    //注意这里对线程的处理
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
-
-                            Intent intent = new Intent();
-                            intent.putExtra("city_name_ch", mSharedPreferences.getString("city_name_ch", null));
-                            intent.putExtra("city_code", mSharedPreferences.getString("city_code", null));
-                            intent.putExtra("update_time", mSharedPreferences.getString("update_time", null));
-                            intent.putExtra("txt_d", mSharedPreferences.getString("txt_d", null));
-                            intent.putExtra("txt_n", mSharedPreferences.getString("txt_n", null));
-                            intent.putExtra("data_now", mSharedPreferences.getString("data_now", null));
-                            intent.putExtra("tmp_min", mSharedPreferences.getString("tmp_min", null));
-                            intent.putExtra("tmp_max", mSharedPreferences.getString("tmp_max", null));
-
-                            setResult(RESULT_OK, intent);
+                            //处理完天气数据，说明已经保存到本地，我们不用再把数据封装到Intent里面返回给MaoWeatherActivity
+                            //可以在onActivityResult里面从本地存储中获取
+                            setResult(RESULT_OK);
                             finish();
                         }
                     });
@@ -170,6 +166,7 @@ public class CityChooseActivity extends BaseActivity {
 
             @Override
             public void onError(Exception e) {
+                //注意这里对线程的处理
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -181,6 +178,7 @@ public class CityChooseActivity extends BaseActivity {
         });
     }
 
+    //显示进度条
     private void showProgressDialog() {
 
         if (mProgressDialog == null) {
@@ -195,6 +193,7 @@ public class CityChooseActivity extends BaseActivity {
         }
     }
 
+    //关闭进度条
     private void closeProgressDialog() {
 
         if (mProgressDialog != null)

@@ -11,6 +11,7 @@ import java.net.URL;
  */
 public class HttpUtil {
 
+    //从服务器获取数据（第一行代码上解释比较详细）
     public static void sendHttpRequest(final String address, final HttpCallback callback) {
 
         new Thread(new Runnable() {

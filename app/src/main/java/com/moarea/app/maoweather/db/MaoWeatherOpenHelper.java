@@ -9,8 +9,11 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MaoWeatherOpenHelper extends SQLiteOpenHelper {
 
+    //创建城市表
     private static final String CREATE_CITY = "CREATE TABLE CITY(ID INTEGER PRIMARY KEY,CITY_NAME_EN TEXT,CITY_NAME_CH TEXT,CITY_CODE TEXT)";
+    //创建有无数据状态表
     private static final String DATA_STATE = "CREATE TABLE DATA_STATE(STATE INTEGER PRIMARY KEY)";
+    //更新状态表数据为0表示暂无数据
     private static final String INSERT_DATA_STATE = "INSERT INTO DATA_STATE VALUES(0)";
 
     public MaoWeatherOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
