@@ -2,14 +2,11 @@ package com.moarea.app.maoweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -182,15 +179,13 @@ public class CityChooseActivity extends Activity {
     private void showProgressDialog() {
 
         if (mProgressDialog == null) {
-            if (mProgressDialog == null) {
 
-                mProgressDialog = new ProgressDialog(this);
-                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                mProgressDialog.setMessage("正在同步数据...");
-                mProgressDialog.setCanceledOnTouchOutside(false);
-            }
-            mProgressDialog.show();
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setMessage("正在同步数据...");
+            mProgressDialog.setCanceledOnTouchOutside(false);
         }
+        mProgressDialog.show();
     }
 
     //关闭进度条
